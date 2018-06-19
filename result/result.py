@@ -1,28 +1,31 @@
 from typing import Generic, TypeVar, Union, Any, Optional, cast, overload
 
 
-E = TypeVar("E")
-T = TypeVar("T")
-A = TypeVar("A")
+T = TypeVar("T")  # Success type
+E = TypeVar("E")  # Error type
 
 
-class Result(Generic[E, T]):
+class Result(Generic[T, E]):
     """
     A simple `Result` type inspired by Rust.
 
     Not all methods (https://doc.rust-lang.org/std/result/enum.Result.html)
     have been implemented, only the ones that make sense in the Python context.
     """
-    def __init__(self, is_ok: bool, value: Union[E, T], force: bool = False) -> None:
+    def __init__(self, is_ok: bool, value: Union[T, E], force: bool = False) -> None:
         """Do not call this constructor, use the Ok or Err class methods instead.
 
         There are no type guarantees on the value if this is called directly.
 
         Args:
-            is_ok: If this represents an ok result
-            value: The value inside the result
-            force: Force creation of the object. This is false by default to prevent accidentally
-                creating instance of a Result in an unsafe way.
+            is_ok:
+                Whether this represents an OK result
+            value:
+                The value inside the result
+            force:
+                Force creation of the object. This is false by default to prevent
+                accidentally creating instance of a Result in an unsafe way.
+
         """
         if force is not True:
             raise RuntimeError("Don't instantiate a Result directly. "
@@ -50,20 +53,20 @@ class Result(Generic[E, T]):
 
     @classmethod
     @overload
-    def Ok(cls) -> 'Result[E, bool]':
+    def Ok(cls) -> 'Result[bool, E]':
         pass
 
     @classmethod
     @overload
-    def Ok(cls, value: T) -> 'Result[E, T]':
+    def Ok(cls, value: T) -> 'Result[T, E]':
         pass
 
     @classmethod
-    def Ok(cls, value: Any = True) -> 'Result[E, Any]':
+    def Ok(cls, value: Any = True) -> 'Result[Any, E]':
         return cls(is_ok=True, value=value, force=True)
 
     @classmethod
-    def Err(cls, error: E) -> 'Result[E, T]':
+    def Err(cls, error: E) -> 'Result[T, E]':
         return cls(is_ok=False, value=error, force=True)
 
     def is_ok(self) -> bool:
@@ -85,7 +88,7 @@ class Result(Generic[E, T]):
         return cast(E, self._value) if self.is_err() else None
 
     @property
-    def value(self) -> Union[E, T]:
+    def value(self) -> Union[T, E]:
         """
         Return the inner value. This might be either the ok or the error type.
         """
@@ -95,23 +98,23 @@ class Result(Generic[E, T]):
 
 
 @overload
-def Ok() -> Result[E, bool]:
+def Ok() -> Result[bool, Any]:
     pass
 
 
 @overload
-def Ok(value: T) -> Result[E, T]:
+def Ok(value: T) -> Result[T, Any]:
     pass
 
 
-def Ok(value: Any = True) -> Result[E, Any]:
+def Ok(value: Any = True) -> Result[Any, Any]:
     """
     Shortcut function to create a new Result.
     """
     return Result.Ok(value)
 
 
-def Err(error: E) -> Result[E, T]:
+def Err(error: E) -> Result[Any, E]:
     """
     Shortcut function to create a new Result.
     """
