@@ -13,7 +13,7 @@ Possible log types:
 
 ## [Unreleased]
 
- - [removed] Dropped support for Python 2
+ - [removed] Dropped support for Python 2 and 3.3
  - [changed] Type annotations: Change parameter order
    from `Result[E, T]` to `Result[T, E]` to match Rust/OCaml/F# (#7)
  - ...
